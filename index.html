@@ -1,0 +1,654 @@
+<html lang="en" class="scroll-smooth"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ace of Spades | Zero Trust Architecture</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500&amp;family=Playfair+Display:ital,wght@0,400;0,500;1,400&amp;display=swap" rel="stylesheet">
+    <style>
+      body {
+          background-color: #05020a; /* Deepest Purple/Black */
+          font-family: 'Inter', sans-serif;
+          overflow-x: hidden;
+      }
+      .font-display {
+          font-family: 'Playfair Display', serif;
+      }
+      .glass-panel {
+          background: rgba(255, 255, 255, 0.03);
+          backdrop-filter: blur(20px);
+          -webkit-backdrop-filter: blur(20px);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+      }
+      .glass-card {
+          background: linear-gradient(180deg, rgba(30, 20, 50, 0.4) 0%, rgba(10, 5, 20, 0.6) 100%);
+          backdrop-filter: blur(12px);
+          border: 1px solid rgba(139, 92, 246, 0.15);
+          transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      }
+      .glass-card:hover {
+          border-color: rgba(139, 92, 246, 0.5);
+          box-shadow: 0 0 30px -5px rgba(139, 92, 246, 0.3);
+          transform: translateY(-5px);
+      }
+      .text-glow {
+          text-shadow: 0 0 20px rgba(167, 139, 250, 0.5);
+      }
+      /* Custom Scrollbar */
+      ::-webkit-scrollbar {
+          width: 6px;
+      }
+      ::-webkit-scrollbar-track {
+          background: #05020a;
+      }
+      ::-webkit-scrollbar-thumb {
+          background: #333;
+          border-radius: 3px;
+      }
+      .mesh-gradient {
+          background: radial-gradient(circle at 50% 50%, rgba(88, 28, 135, 0.15), transparent 60%);
+      }
+    </style>
+  </head>
+  <body class="text-slate-300 antialiased selection:bg-fuchsia-500/30 selection:text-fuchsia-200">
+    <!-- Background Canvas Layers -->
+    <div class="fixed inset-0 z-0 pointer-events-none">
+      <canvas id="bg-canvas" class="w-full h-full"></canvas>
+    </div>
+
+    <!-- Moving Spotlights -->
+    <div class="fixed top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
+      <div class="absolute top-[-20%] left-[-10%] w-[50vw] h-[50vw] bg-violet-900/10 rounded-full blur-[120px] animate-pulse"></div>
+      <div class="absolute bottom-[-20%] right-[-10%] w-[40vw] h-[40vw] bg-fuchsia-900/10 rounded-full blur-[120px]" style="animation: pulse 8s infinite reverse;"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 transition-all duration-300 border-b border-white/5 bg-[#05020a]/70 backdrop-blur-xl">
+      <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+        <div class="flex items-center gap-3 group cursor-pointer">
+          <div class="relative w-8 h-8 flex items-center justify-center bg-white/5 rounded-lg border border-white/10 group-hover:border-fuchsia-500/50 transition-colors">
+            <span class="text-xl text-fuchsia-400">♠</span>
+          </div>
+          <span class="font-display text-xl tracking-tight text-white group-hover:text-fuchsia-200 transition-colors">
+            Ace of Spades
+          </span>
+        </div>
+
+        <div class="hidden md:flex items-center gap-8 text-sm font-light">
+          <a href="#solutions" class="hover:text-white transition-colors">
+            Protocol
+          </a>
+          <a href="#features" class="hover:text-white transition-colors">
+            The Suit
+          </a>
+          <a href="#pricing" class="hover:text-white transition-colors">
+            Membership
+          </a>
+        </div>
+
+        <div class="flex items-center gap-4">
+          <a href="#" class="text-sm font-light hover:text-white transition-colors hidden sm:block">
+            Log In
+          </a>
+          <button class="px-5 py-2 text-sm bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-full backdrop-blur-md transition-all hover:scale-105 active:scale-95 group relative overflow-hidden">
+            <span class="relative z-10 flex items-center gap-2">
+              System Entry
+              <i data-lucide="arrow-right" class="w-4 h-4 opacity-70 group-hover:translate-x-1 transition-transform"></i>
+            </span>
+            <div class="absolute inset-0 bg-gradient-to-r from-violet-600/20 to-fuchsia-600/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+          </button>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <main class="relative z-10 pt-32 pb-20 overflow-hidden">
+      <div class="max-w-7xl mx-auto px-6">
+        <div class="flex flex-col items-center text-center relative">
+          <!-- Status Badge -->
+          <div class="mb-8 inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-violet-500/30 bg-violet-500/10 text-violet-300 text-xs tracking-wider uppercase animate-fade-in-up">
+            <span class="relative flex h-2 w-2">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-violet-400 opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-2 w-2 bg-violet-500"></span>
+            </span>
+            System Operational
+          </div>
+
+          <!-- Main Title -->
+          <h1 class="font-display text-5xl md:text-7xl lg:text-8xl text-transparent bg-clip-text bg-gradient-to-b from-white via-white to-white/40 tracking-tight leading-[1.1] mb-8 max-w-4xl mx-auto drop-shadow-2xl">
+            Architect your wealth
+            <br>
+            <span class="italic font-light text-fuchsia-400/90 text-glow">
+              with absolute precision.
+            </span>
+          </h1>
+
+          <!-- Subtitle -->
+          <p class="text-lg md:text-xl text-slate-400 font-light max-w-2xl mx-auto leading-relaxed mb-12">
+            Advanced Zero Trust protocols merged with intuitive design. We
+            provide the infrastructure to accelerate your economic legacy
+            through the chaos.
+          </p>
+
+          <!-- CTA Buttons -->
+          <div class="flex flex-col sm:flex-row items-center gap-4 mb-20">
+            <button class="px-8 py-4 bg-white text-black rounded-full font-medium text-sm hover:bg-slate-200 transition-all hover:shadow-[0_0_40px_-10px_rgba(255,255,255,0.6)] active:scale-95 flex items-center gap-2">
+              Deploy Architecture
+              <i data-lucide="zap" class="w-4 h-4 fill-black"></i>
+            </button>
+            <button class="px-8 py-4 bg-transparent text-white border border-white/10 rounded-full font-light text-sm hover:bg-white/5 transition-all backdrop-blur-sm flex items-center gap-2 group">
+              Read the Manifesto
+              <i data-lucide="chevron-right" class="w-4 h-4 opacity-50 group-hover:translate-x-1 transition-transform"></i>
+            </button>
+          </div>
+
+          <!-- Visual Element (Simulated Grid/Goo) -->
+          <div class="w-full max-w-5xl h-[400px] relative rounded-2xl overflow-hidden border border-white/5 glass-panel group">
+            <canvas id="matrix-canvas" class="absolute inset-0 w-full h-full"></canvas>
+            <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <div class="text-center space-y-2">
+                <div class="text-xs tracking-[0.2em] text-cyan-400/70">
+                  ZERO LATENCY
+                </div>
+                <div class="font-display text-3xl text-white/90">
+                  The Royal Flush Protocol
+                </div>
+              </div>
+            </div>
+            <!-- Decorative overlay lines -->
+            <div class="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-cyan-500/50 to-transparent"></div>
+            <div class="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-violet-500/50 to-transparent"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Features Section (The Suits) -->
+    <section id="features" class="py-24 relative z-10">
+      <div class="max-w-7xl mx-auto px-6">
+        <div class="mb-16">
+          <h2 class="font-display text-3xl md:text-4xl text-white mb-4 tracking-tight">
+            The Four Pillars
+          </h2>
+          <p class="text-slate-400 font-light text-lg max-w-xl">
+            Our architecture is built upon four suits of absolute security.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <!-- Spades: Security -->
+          <div class="glass-card rounded-2xl p-8 relative overflow-hidden group">
+            <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+              <span class="text-8xl font-display">♠</span>
+            </div>
+            <div class="w-12 h-12 rounded-full bg-violet-500/10 flex items-center justify-center border border-violet-500/20 mb-6 group-hover:scale-110 transition-transform duration-300">
+              <i data-lucide="shield-check" class="w-6 h-6 text-violet-400"></i>
+            </div>
+            <h3 class="text-xl font-medium text-white mb-3">Spades</h3>
+            <p class="text-sm text-slate-400 leading-relaxed font-light">
+              Military-grade encryption acting as the ultimate shield. Zero
+              trust verification at every endpoint.
+            </p>
+          </div>
+
+          <!-- Hearts: Health/Monitor -->
+          <div class="glass-card rounded-2xl p-8 relative overflow-hidden group">
+            <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+              <span class="text-8xl font-display">♥</span>
+            </div>
+            <div class="w-12 h-12 rounded-full bg-rose-500/10 flex items-center justify-center border border-rose-500/20 mb-6 group-hover:scale-110 transition-transform duration-300">
+              <i data-lucide="activity" class="w-6 h-6 text-rose-400"></i>
+            </div>
+            <h3 class="text-xl font-medium text-white mb-3">Hearts</h3>
+            <p class="text-sm text-slate-400 leading-relaxed font-light">
+              Real-time system health monitoring. The pulse of your
+              infrastructure is tracked continuously.
+            </p>
+          </div>
+
+          <!-- Clubs: Community/Network -->
+          <div class="glass-card rounded-2xl p-8 relative overflow-hidden group">
+            <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+              <span class="text-8xl font-display">♣</span>
+            </div>
+            <div class="w-12 h-12 rounded-full bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 mb-6 group-hover:scale-110 transition-transform duration-300">
+              <i data-lucide="users" class="w-6 h-6 text-emerald-400"></i>
+            </div>
+            <h3 class="text-xl font-medium text-white mb-3">Clubs</h3>
+            <p class="text-sm text-slate-400 leading-relaxed font-light">
+              Identity management and access control. Manage the crowd with
+              granular permissions.
+            </p>
+          </div>
+
+          <!-- Diamonds: Value/Asset -->
+          <div class="glass-card rounded-2xl p-8 relative overflow-hidden group">
+            <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+              <span class="text-8xl font-display">♦</span>
+            </div>
+            <div class="w-12 h-12 rounded-full bg-amber-500/10 flex items-center justify-center border border-amber-500/20 mb-6 group-hover:scale-110 transition-transform duration-300">
+              <i data-lucide="diamond" class="w-6 h-6 text-amber-400"></i>
+            </div>
+            <h3 class="text-xl font-medium text-white mb-3">Diamonds</h3>
+            <p class="text-sm text-slate-400 leading-relaxed font-light">
+              Asset protection and immutable ledgers. Preserving value within a
+              crystallized vault.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Large Feature Section -->
+    <section class="py-24 relative z-10 border-y border-white/5 bg-white/[0.01]">
+      <div class="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-16 items-center">
+        <div class="order-2 lg:order-1 relative">
+          <div class="absolute inset-0 bg-gradient-to-r from-violet-500/20 to-fuchsia-500/20 blur-[60px] rounded-full"></div>
+          <div class="relative glass-panel rounded-2xl border border-white/10 p-1">
+            <!-- Fake UI Interface -->
+            <div class="bg-[#0a0514] rounded-xl overflow-hidden shadow-2xl">
+              <div class="h-8 border-b border-white/10 flex items-center px-4 gap-2">
+                <div class="w-2.5 h-2.5 rounded-full bg-red-500/50"></div>
+                <div class="w-2.5 h-2.5 rounded-full bg-yellow-500/50"></div>
+                <div class="w-2.5 h-2.5 rounded-full bg-green-500/50"></div>
+              </div>
+              <div class="p-6 space-y-4">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-mono text-slate-500 truncate max-w-[200px]">
+                    REQUEST_ID: 0x1ea760ee81d72e7cd5e20d2caa31ab45ecccb5b9b9f6b8a5542e3a28a0973e2ede603193df58d172f8e6956a9c683e398c929ad9d37d196a6edb4d4d4c38fd71
+                  </span>
+                  <span class="text-xs px-2 py-0.5 rounded bg-green-500/20 text-green-400">
+                    VERIFIED
+                  </span>
+                </div>
+                <div class="space-y-2">
+                  <div class="h-2 w-3/4 bg-white/10 rounded animate-pulse"></div>
+                  <div class="h-2 w-1/2 bg-white/10 rounded animate-pulse" style="animation-delay: 0.1s"></div>
+                  <div class="h-2 w-full bg-white/10 rounded animate-pulse" style="animation-delay: 0.2s"></div>
+                </div>
+                <div class="pt-4 border-t border-white/5 flex gap-4">
+                  <div class="flex-1 p-3 rounded bg-white/5 border border-white/5 text-center">
+                    <div class="text-xs text-slate-500 mb-1">Threat Level</div>
+                    <div class="text-red-500 font-mono">99.9%</div>
+                  </div>
+                  <div class="flex-1 p-3 rounded bg-white/5 border border-white/5 text-center">
+                    <div class="text-xs text-slate-500 mb-1">Encryption</div>
+                    <div class="text-violet-400 font-mono">AES-128</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="order-1 lg:order-2">
+          <h2 class="font-display text-4xl md:text-5xl text-white mb-6 tracking-tight">
+            The Joker is
+            <br>
+            <span class="text-fuchsia-400">Never in play.</span>
+          </h2>
+          <p class="text-slate-400 font-light text-lg mb-8 leading-relaxed">
+            Eliminate unpredictability. Our "Ace" engine removes variables,
+            ensuring that every transaction and interaction is authenticated
+            before it enters the perimeter.
+          </p>
+          <ul class="space-y-4">
+            <li class="flex items-center gap-3 text-slate-300 font-light">
+              <i data-lucide="check-circle-2" class="w-5 h-5 text-violet-500"></i>
+              <span>Zero standing privileges</span>
+            </li>
+            <li class="flex items-center gap-3 text-slate-300 font-light">
+              <i data-lucide="check-circle-2" class="w-5 h-5 text-violet-500"></i>
+              <span>Lateral movement prevention</span>
+            </li>
+            <li class="flex items-center gap-3 text-slate-300 font-light">
+              <i data-lucide="check-circle-2" class="w-5 h-5 text-violet-500"></i>
+              <span>Continuous adaptive trust</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Pricing / Plans -->
+    <section id="pricing" class="py-24 relative z-10">
+      <div class="max-w-7xl mx-auto px-6">
+        <div class="text-center mb-16">
+          <h2 class="font-display text-3xl md:text-5xl text-white tracking-tight mb-4">
+            Choose Your Hand
+          </h2>
+          <p class="text-slate-400 font-light text-lg">
+            Scalable security for every tier of operation.
+          </p>
+        </div>
+
+        <div class="grid md:grid-cols-3 gap-8">
+          <!-- Jack Tier -->
+          <div class="glass-card p-8 rounded-2xl flex flex-col relative">
+            <div class="mb-4">
+              <span class="text-xs font-bold tracking-widest text-slate-500 uppercase">
+                Jack
+              </span>
+              <div class="text-xl font-display text-white mt-2">
+                Entry Level
+              </div>
+            </div>
+            <ul class="space-y-4 mb-8 flex-1">
+              <li class="text-sm font-light text-slate-300 flex gap-2">
+                <i data-lucide="check" class="w-4 h-4 text-violet-500"></i>
+                Single User Verification
+              </li>
+              <li class="text-sm font-light text-slate-300 flex gap-2">
+                <i data-lucide="check" class="w-4 h-4 text-violet-500"></i>
+                Basic Monitoring
+              </li>
+              <li class="text-sm font-light text-slate-300 flex gap-2">
+                <i data-lucide="check" class="w-4 h-4 text-violet-500"></i>
+                1GB Encrypted Vault
+              </li>
+            </ul>
+            <button class="w-full py-3 rounded-lg border border-white/10 text-white text-sm hover:bg-white/5 transition-colors">
+              Select Jack
+            </button>
+          </div>
+
+          <!-- Queen Tier -->
+          <div class="glass-card p-8 rounded-2xl flex flex-col relative border-fuchsia-500/30 bg-fuchsia-900/5">
+            <div class="absolute -top-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-violet-600 to-fuchsia-600 px-4 py-1 rounded-full text-[10px] font-bold tracking-wider text-white shadow-lg">
+              POPULAR
+            </div>
+            <div class="mb-4">
+              <span class="text-xs font-bold tracking-widest text-fuchsia-400 uppercase">
+                Queen
+              </span>
+              <div class="text-xl font-display text-white mt-2">
+                Priority Access
+              </div>
+            </div>
+            <ul class="space-y-4 mb-8 flex-1">
+              <li class="text-sm font-light text-slate-300 flex gap-2">
+                <i data-lucide="check" class="w-4 h-4 text-fuchsia-400"></i>
+                Up to 10 Users
+              </li>
+              <li class="text-sm font-light text-slate-300 flex gap-2">
+                <i data-lucide="check" class="w-4 h-4 text-fuchsia-400"></i>
+                Real-time Threat Analysis
+              </li>
+              <li class="text-sm font-light text-slate-300 flex gap-2">
+                <i data-lucide="check" class="w-4 h-4 text-fuchsia-400"></i>
+                AI Pattern Recognition
+              </li>
+            </ul>
+            <button class="w-full py-3 rounded-lg bg-white text-black text-sm hover:bg-slate-200 transition-colors shadow-[0_0_20px_-5px_rgba(255,255,255,0.3)]">
+              Select Queen
+            </button>
+          </div>
+
+          <!-- King Tier -->
+          <div class="glass-card p-8 rounded-2xl flex flex-col relative">
+            <div class="mb-4">
+              <span class="text-xs font-bold tracking-widest text-amber-400 uppercase">
+                King
+              </span>
+              <div class="text-xl font-display text-white mt-2">
+                Full Immunity
+              </div>
+            </div>
+            <ul class="space-y-4 mb-8 flex-1">
+              <li class="text-sm font-light text-slate-300 flex gap-2">
+                <i data-lucide="check" class="w-4 h-4 text-amber-400"></i>
+                Unlimited Users
+              </li>
+              <li class="text-sm font-light text-slate-300 flex gap-2">
+                <i data-lucide="check" class="w-4 h-4 text-amber-400"></i>
+                Dedicated Infrastructure
+              </li>
+              <li class="text-sm font-light text-slate-300 flex gap-2">
+                <i data-lucide="check" class="w-4 h-4 text-amber-400"></i>
+                24/7 Priority Support
+              </li>
+            </ul>
+            <button class="w-full py-3 rounded-lg border border-white/10 text-white text-sm hover:bg-white/5 transition-colors">
+              Select King
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="relative z-10 border-t border-white/10 bg-[#020105] py-12">
+      <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
+        <div class="flex items-center gap-2">
+          <span class="text-lg text-fuchsia-400">♠</span>
+          <span class="font-display text-white tracking-tight">
+            Ace of Spades
+          </span>
+        </div>
+        <div class="text-sm text-slate-500 font-light">
+          © 2025 AoS. All rights reserved.
+        </div>
+        <div class="flex gap-6">
+          <a href="#" class="text-slate-500 hover:text-white transition-colors">
+            <i data-lucide="twitter" class="w-5 h-5"></i>
+          </a>
+          <a href="#" class="text-slate-500 hover:text-white transition-colors">
+            <i data-lucide="github" class="w-5 h-5"></i>
+          </a>
+          <a href="#" class="text-slate-500 hover:text-white transition-colors">
+            <i data-lucide="linkedin" class="w-5 h-5"></i>
+          </a>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      // Initialize Icons
+      lucide.createIcons({
+          attrs: {
+              'stroke-width': 1.5
+          }
+      });
+
+      // --------------------------------------------------------
+      // EFFECT 1: Background Mesh Network with Ripple
+      // --------------------------------------------------------
+      const canvasBg = document.getElementById('bg-canvas');
+      const ctxBg = canvasBg.getContext('2d');
+      let width, height;
+      let particles = [];
+      let tick = 0;
+
+      function resizeBg() {
+          width = canvasBg.width = window.innerWidth;
+          height = canvasBg.height = window.innerHeight;
+          initParticles();
+      }
+
+      const mouse = { x: undefined, y: undefined };
+
+      window.addEventListener('mousemove', (e) => {
+          mouse.x = e.x;
+          mouse.y = e.y;
+      });
+
+      class Particle {
+          constructor() {
+              this.x = Math.random() * width;
+              this.y = Math.random() * height;
+              this.baseSize = Math.random() * 2 + 1;
+              this.size = this.baseSize;
+              this.intensity = 0;
+          }
+
+          update() {
+              if (mouse.x != undefined) {
+                  let dx = mouse.x - this.x;
+                  let dy = mouse.y - this.y;
+                  let distance = Math.sqrt(dx * dx + dy * dy);
+                  let maxDistance = 500;
+
+                  if (distance < maxDistance) {
+                      // Ripple math: expanding sine wave
+                      const wave = Math.sin(distance * 0.04 - tick * 4);
+                      const envelope = 1 - (distance / maxDistance);
+
+                      this.intensity = envelope * (0.3 + (wave + 1) * 0.5);
+                      this.size = this.baseSize + (wave * 2 * envelope);
+                  } else {
+                      this.intensity = 0;
+                      this.size = this.baseSize;
+                  }
+              }
+          }
+
+          draw() {
+              ctxBg.beginPath();
+              if (this.intensity > 0.1) {
+                  ctxBg.fillStyle = `rgba(216, 180, 254, ${0.3 + this.intensity * 0.7})`;
+                  ctxBg.shadowBlur = 15 * this.intensity;
+                  ctxBg.shadowColor = 'rgba(216, 180, 254, 0.8)';
+              } else {
+                  ctxBg.fillStyle = 'rgba(139, 92, 246, 0.2)';
+                  ctxBg.shadowBlur = 0;
+              }
+
+              let dSize = Math.max(0.1, this.size);
+              ctxBg.arc(this.x, this.y, dSize, 0, Math.PI * 2);
+              ctxBg.fill();
+              ctxBg.shadowBlur = 0;
+          }
+      }
+
+      function initParticles() {
+          particles = [];
+          let numberOfParticles = (width * height) / 14000;
+          for (let i = 0; i < numberOfParticles; i++) {
+              particles.push(new Particle());
+          }
+      }
+
+      function animateBg() {
+          ctxBg.clearRect(0, 0, width, height);
+          tick += 0.03;
+
+          for (let i = 0; i < particles.length; i++) {
+              particles[i].update();
+              particles[i].draw();
+
+              for (let j = i; j < particles.length; j++) {
+                  let dx = particles[i].x - particles[j].x;
+                  let dy = particles[i].y - particles[j].y;
+                  let distance = Math.sqrt(dx * dx + dy * dy);
+
+                  if (distance < 150) {
+                      ctxBg.beginPath();
+                      let opacity = (1 - distance/150) * 0.15;
+                      let avgIntensity = (particles[i].intensity + particles[j].intensity) / 2;
+
+                      if(avgIntensity > 0.1) {
+                          opacity += avgIntensity * 0.5;
+                          ctxBg.strokeStyle = `rgba(216, 180, 254, ${opacity})`;
+                          ctxBg.lineWidth = 0.5 + avgIntensity * 1.5;
+                      } else {
+                          ctxBg.strokeStyle = `rgba(139, 92, 246, ${opacity})`;
+                          ctxBg.lineWidth = 0.5;
+                      }
+
+                      ctxBg.moveTo(particles[i].x, particles[i].y);
+                      ctxBg.lineTo(particles[j].x, particles[j].y);
+                      ctxBg.stroke();
+                  }
+              }
+          }
+          requestAnimationFrame(animateBg);
+      }
+
+      window.addEventListener('resize', resizeBg);
+      resizeBg();
+      animateBg();
+
+      // --------------------------------------------------------
+      // EFFECT 2: Goo Matrix (Original)
+      // --------------------------------------------------------
+      const canvasM = document.getElementById('matrix-canvas');
+      const ctxM = canvasM.getContext('2d');
+      let wM, hM;
+      let points = [];
+      let time = 0;
+      const cols = 50;
+      const rows = 30;
+
+      function resizeM() {
+          const parent = canvasM.parentElement;
+          wM = canvasM.width = parent.offsetWidth;
+          hM = canvasM.height = parent.offsetHeight;
+          initMatrix();
+      }
+
+      function initMatrix() {
+          points = [];
+          for (let i = 0; i < cols; i++) {
+              for (let j = 0; j < rows; j++) {
+                  points.push({
+                      x: i * (wM / cols) + (wM/cols)/2,
+                      y: j * (hM / rows) + (hM/rows)/2,
+                      originX: i * (wM / cols) + (wM/cols)/2,
+                      originY: j * (hM / rows) + (hM/rows)/2,
+                  });
+              }
+          }
+      }
+
+      function getRelativeMouse(canvas) {
+          const rect = canvas.getBoundingClientRect();
+          if(mouse.x) {
+              return {
+                  x: mouse.x - rect.left,
+                  y: mouse.y - rect.top
+              };
+          }
+          return { x: -1000, y: -1000 };
+      }
+
+      function animateMatrix() {
+          ctxM.fillStyle = 'rgba(0,0,0,0.1)';
+          ctxM.fillRect(0, 0, wM, hM);
+
+          time += 0.05;
+          const relMouse = getRelativeMouse(canvasM);
+
+          points.forEach(p => {
+              const dist = Math.sqrt((p.originX - wM/2)**2 + (p.originY - hM/2)**2);
+              const wave = Math.sin(dist * 0.03 - time) * 10;
+
+              let dx = relMouse.x - p.originX;
+              let dy = relMouse.y - p.originY;
+              let d = Math.sqrt(dx*dx + dy*dy);
+              let force = Math.max(0, 150 - d) / 150;
+
+              let shiftY = wave + (force * 30);
+
+              const r = 50 + (force * 100);
+              const g = 100 + (Math.sin(time)*50);
+              const b = 200 + (force * 55);
+
+              ctxM.fillStyle = `rgba(${r}, ${g}, ${b}, ${0.3 + force})`;
+
+              const size = 2 + force * 3;
+              ctxM.fillRect(p.originX, p.originY + shiftY, size, size);
+          });
+
+          requestAnimationFrame(animateMatrix);
+      }
+
+      window.addEventListener('resize', resizeM);
+      setTimeout(() => {
+          resizeM();
+          animateMatrix();
+      }, 100);
+    </script>
+  
+</body></html>
